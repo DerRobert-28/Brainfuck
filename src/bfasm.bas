@@ -1,3 +1,6 @@
+'$include:'./bfv.bi'
+
+
 Options:
     $console:only
     $noprefix

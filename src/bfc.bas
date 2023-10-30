@@ -1,3 +1,6 @@
+'$include:'./bfv.bi'
+
+
 Options:
     $console:only
     $noprefix
@@ -14,7 +17,8 @@ Constants:
     const NULL_BYTE = 0
     const NUMBER_LIST = "0123456789"
     const SRC_EXT = "bf"
-    const TEMP_EXT = "bc.tmp"
+    const TEMP_EXT1 = "bc.tmp1"
+    const TEMP_EXT2 = "bc.tmp2"
     const TOKEN_LIST = "><+-[].,"
 
 
@@ -23,18 +27,31 @@ Globals:
     dim shared as string    Token_Sep
 
 
+Arrays:
+    redim as string macroNames(0), macroCodes(0)
+
 Variables:
+    dim as string   bfLine
     dim as string   bfToken
     dim as string   byteCode
     dim as integer  count
+    dim as integer  each
+    dim as integer  currentIndex
+    dim as string   currentMacro
+    dim as string   currentName
     dim as string   destFile
     dim as string   fileName
+    dim as integer  foundIndex
     dim as integer  inFile
     dim as string   kind
     dim as integer  outFile
     dim as string   push
     dim as string   srcFile
-    dim as string   tempFile
+    dim as string   tempFile1
+    dim as string   tempFile2
+    dim as string   theMacro
+    dim as string   theName
+    dim as string   theToken
     dim as integer  value
 
 
@@ -51,7 +68,8 @@ Begin:
     fileName = trim$(command$)
     srcFile = fileName + EXT_SEP + SRC_EXT
     destFile = fileName + EXT_SEP + DEST_EXT
-    tempFile = fileName + EXT_SEP + TEMP_EXT
+    tempFile1 = fileName + EXT_SEP + TEMP_EXT1
+    tempFile2 = fileName + EXT_SEP + TEMP_EXT2
 
     print
     print "Brainfuck Compiler 0.1"
@@ -71,7 +89,7 @@ Begin:
 
     print "Attempt to prepare: " + destFile
     outFile = freefile
-    open FOR_WRITING, outFile, tempFile
+    open FOR_WRITING, outFile, tempFile1
     if IOresult then
         print "Could not access output file: " + destFile
         print "Check file access and try again."
@@ -82,6 +100,125 @@ Begin:
     print
     print "Writing file ..."
 
+    '
+    '   Pre-processing macros
+    '
+    do until eof(inFile)
+
+        bfToken = input$(1, inFile)
+
+        if bfToken = chr$(34) then
+
+            theName = EMPTY
+            do
+                theToken = input$(1, inFile)
+                if IOresult then
+                print theToken
+                    print "Unexpected end of file!"
+                    close
+                    kill tempFile1
+                    system
+                endif
+                if theToken = chr$(34) then exit do
+                theName = theName + theToken
+            loop
+
+            theName = trim$(theName)
+            currentIndex = ubound(macroNames)
+            currentName = trim$(macroNames(currentIndex))
+
+            if isNotEmpty(currentName) then
+                redim preserve macroNames(0 to currentIndex + 1)
+                currentIndex = currentIndex + 1
+            endif
+            macroNames(currentIndex) = theName
+
+        elseif bfToken = "(" then
+
+            theMacro = EMPTY
+
+            do
+                theToken = input$(1, inFile)
+                if IOresult then
+                    print "Unexpected end of file!"
+                    close
+                    kill tempFile1
+                    system
+                elseif theToken = ")" then
+                    exit do
+                endif
+
+                theMacro = theMacro + theToken
+            loop
+
+            theMacro = trim$(theMacro)
+
+            currentIndex = min(ubound(macroNames), ubound(macroCodes))
+            for each = 0 to currentIndex
+                if macroNames(each) = theMacro then
+                    print #outFile, macroCodes(each);
+                endif
+            next
+
+        elseif bfToken = ")" then
+
+            print "WARNING: ')' is only allowed with '('!"
+            print "         Token will be ignoed!"
+
+
+        elseif bfToken = "{" then
+
+            theMacro = EMPTY
+
+            do
+                theToken = input$(1, inFile)
+                if IOresult then
+                    print "Unexpected end of file!"
+                    close
+                    kill tempFile1
+                    system
+                elseif theToken = "{" then
+                    print "WARNING: Nested macros are not allowed!"
+                    print "         Token '{' will be ignoed!"
+                elseif theToken = "}" then
+                    exit do
+                else
+                    theMacro = theMacro + theToken
+                endif
+            loop
+
+            theMacro = trim$(theMacro)
+            currentIndex = ubound(macroCodes, 1)
+            currentMacro = trim$(macroCodes(currentIndex))
+
+            if isNotEmpty(currentMacro) then
+                redim preserve macroCodes(0 to currentIndex + 1)
+                currentIndex = currentIndex + 1
+            endif
+            macroCodes(currentIndex) = theMacro
+
+        elseif bfToken = "}" then
+
+            print "WARNING: '}' is only allowed with '{'!"
+            print "         Token will be ignoed!"
+
+        else
+
+            print #outFile, bfToken;
+
+        endif
+
+    loop
+
+    close
+
+    open FOR_READING, inFile, tempFile1
+
+    open FOR_WRITING, outFile, tempFile2
+
+    '
+    '   Interpreting numbers
+    '
     do until eof(inFile)
 
         bfToken = input$(1, inFile)
@@ -102,7 +239,7 @@ Begin:
 
             count = val(bfToken)
             if(len(push) = 1) and(count = 0) then
-                push$ = EMPTY
+                push = EMPTY
             else
                 kind = left$(push, 1)
                 push = push + string$(count, kind)
@@ -122,23 +259,34 @@ Begin:
 
     close
 
-    open FOR_READING, inFile, tempFile
+    open FOR_READING, inFile, tempFile2
 
     open FOR_WRITING, outFile, destFile
 
+    '
+    '   Compiling the code
+    '
     do until eof(inFile)
 
         bfToken = input$(1, inFile)
 
         select case bfToken
-            case ">": byteCode = "8" + byteCode
-            case "<": byteCode = "9" + byteCode
-            case "+": byteCode = "A" + byteCode
-            case "-": byteCode = "B" + byteCode
-            case "[": byteCode = "C" + byteCode
-            case "]": byteCode = "D" + byteCode
-            case ".": byteCode = "E" + byteCode
-            case ",": byteCode = "F" + byteCode
+            case "+"
+                byteCode = "A" + byteCode
+            case ","
+                byteCode = "F" + byteCode
+            case "-"
+                byteCode = "B" + byteCode
+            case "."
+                byteCode = "E" + byteCode
+            case "<"
+                byteCode = "9" + byteCode
+            case ">"
+                byteCode = "8" + byteCode
+            case "["
+                byteCode = "C" + byteCode
+            case "]"
+                byteCode = "D" + byteCode
         end select
 
         if len(byteCode) = 2 then
@@ -160,7 +308,8 @@ Begin:
     print #outFile, chr$(NULL_BYTE);
 
     close
-    kill tempFile
+    kill tempFile1
+    kill tempFile2
 
     print
     print "Compiled successfully."
@@ -169,7 +318,28 @@ Begin:
     system
 End
 
+
 OnException:
     IOresult = err
+    print errorline
 resume next
+
+
+function isEmpty%(st as string)
+    isEmpty = (len(st) = 0)
+end function
+
+
+function isNotEmpty%(st as string)
+    isNotEmpty = (len(st) > 0)
+end function
+
+
+function min%(first as integer, second as integer)
+    if first < second then
+        min = first
+    else
+        min = second
+    endif
+end function
 

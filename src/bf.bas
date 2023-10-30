@@ -1,3 +1,6 @@
+'$include:'./bfv.bi'
+
+
 Options:
     $console:only
     $noprefix
@@ -6,17 +9,17 @@ Options:
 
 
 Constants:
-    const BF_DEC = 11
+    const BF_DEC = 11       'B
     const BF_EXT = "bc"
-    const BF_IF = 12
-    const BF_IN = 15
-    const BF_INC = 10
-    const BF_LOOP = 13
-    const BF_NOP = 0
-    const BF_OUT = 14
-    const BF_POP = 9
-    const BF_PUSH = 8
-    const BF_RET = 7
+    const BF_IF = 12        'C
+    const BF_IN = 15        'F
+    const BF_INC = 10       'A
+    const BF_LOOP = 13      'D
+    const BF_NOP = 0        '0
+    const BF_OUT = 14       'E
+    const BF_POP = 9        '9
+    const BF_PUSH = 8       '8
+    const BF_RET = 7        '7
     const BF_TERM = "00"
     const EMPTY = ""
     const EXT_SEP = "."
