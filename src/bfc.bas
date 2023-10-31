@@ -21,6 +21,7 @@ Constants:
 	const SRC_EXT		= "bf"
 	const TEMP_EXT1		= "bc.tmp1"
 	const TEMP_EXT2		= "bc.tmp2"
+	const TEMP_EXT3		= "bc.tmp3"
 	const TOKEN_LIST	= "+,-.<>[]"
 
 
@@ -39,18 +40,19 @@ Variables:
 		count, currentIndex,	_
 		each,			_
 	  	foundIndex,		_
-	  	inFile,			_
+	  	inFile, includeFile,	_
 	  	outFile,		_
 		value
-	dim as string							_
-		bfLine, bfToken, byteCode,				_
-		currentMacro, currentName,				_
-		destFile,						_
-		fileName,						_
-		kind,							_
-		push,							_
-		srcFile,						_
-		tempFile1, tempFile2, theMacro, theName, theToken
+	dim as string								_
+		bfLine, bfToken, byteCode,					_
+		currentMacro, currentName,					_
+		destFile,							_
+		fileName,							_
+		includeLine, includeSrc,					_
+		kind,								_
+		push,								_
+		srcFile,							_
+		tempFile1, tempFile2, tempFile3, theMacro, theName, theToken
 
 
 Exceptions:
@@ -69,6 +71,7 @@ Begin:
 	destFile    = fileName + EXT_SEP + DEST_EXT
 	tempFile1   = fileName + EXT_SEP + TEMP_EXT1
 	tempFile2   = fileName + EXT_SEP + TEMP_EXT2
+	tempFile3   = fileName + EXT_SEP + TEMP_EXT3
 
 	print
 	print "Brainfuck Compiler v" + VERSION
@@ -90,14 +93,46 @@ Begin:
 	outFile = freefile
 	open FOR_WRITING, outFile, tempFile1
 	if IOresult then
+		gosub CloseAndDeleteTempFiles
 		print "Could not access output file: " + destFile
 		print "Check file access and try again."
-		close
 		system
 	endif
 
 	print
 	print "Writing file ..."
+	'
+	'   Pre-processing includes
+	'
+	do until eof(inFile)
+		line input #inFile, includeSrc
+		includeSrc = trim$(includeSrc)
+		if left$(includeSrc, 1) = "#" then
+			includeSrc = trim$(mid$(includeSrc, 2))
+			if isNotEmpty(includeSrc) then
+				includeSrc = includeSrc + EXT_SEP + SRC_EXT
+				print "Including: " + includeSrc
+				includeFile = freefile
+				open FOR_READING, includeFile, includeSrc
+				if IOresult then
+					gosub CloseAndDeleteTempFiles
+					print "Could not access include file: " + includeSrc
+					print "Check file access and try again."
+					system
+				endif
+				do until eof(includeFile)
+					line input #includeFile, includeLine
+					print #outFile, includeLine
+				loop
+			endif
+		else
+			print #outFile, includeSrc
+		endif
+	loop
+	close
+
+	open FOR_READING, inFile, tempFile1
+	open FOR_WRITING, outFile, tempFile2
 	'
 	'   Pre-processing macros
 	'
@@ -109,16 +144,15 @@ Begin:
 			do
 				theToken = input$(1, inFile)
 				if IOresult then
+					gosub CloseAndDeleteTempFiles
 					print "Unexpected end of file!"
-					close
-					kill tempFile1
 					system
 				endif
 				if theToken = chr$(34) then exit do
 				theName = theName + theToken
 			loop
-			theName     = trim$(theName)
-			currentIndex    = ubound(macroNames)
+			theName = trim$(theName)
+			currentIndex = ubound(macroNames)
 			currentName = trim$(macroNames(currentIndex))
 			if isNotEmpty(currentName) then
 				redim preserve macroNames(0 to currentIndex + 1)
@@ -131,17 +165,16 @@ Begin:
 			do
 				theToken = input$(1, inFile)
 				if IOresult then
+					gosub CloseAndDeleteTempFiles
 					print "Unexpected end of file!"
-					close
-					kill tempFile1
 					system
 				elseif theToken = ")" then
 					exit do
 				endif
 				theMacro = theMacro + theToken
 			loop
-			theMacro    = trim$(theMacro)
-			currentIndex    = min(ubound(macroNames), ubound(macroCodes))
+			theMacro = trim$(theMacro)
+			currentIndex = min(ubound(macroNames), ubound(macroCodes))
 			for each = 0 to currentIndex
 				if macroNames(each) = theMacro then
 					print #outFile, macroCodes(each);
@@ -157,9 +190,8 @@ Begin:
 			do
 				theToken = input$(1, inFile)
 				if IOresult then
+					gosub CloseAndDeleteTempFiles
 					print "Unexpected end of file!"
-					close
-					kill tempFile1
 					system
 				elseif theToken = "{" then
 					print "WARNING: Nested macros are not allowed!"
@@ -170,9 +202,9 @@ Begin:
 					theMacro = theMacro + theToken
 				endif
 			loop
-			theMacro    = trim$(theMacro)
-			currentIndex    = ubound(macroCodes, 1)
-			currentMacro    = trim$(macroCodes(currentIndex))
+			theMacro = trim$(theMacro)
+			currentIndex = ubound(macroCodes, 1)
+			currentMacro = trim$(macroCodes(currentIndex))
 			if isNotEmpty(currentMacro) then
 				redim preserve macroCodes(0 to currentIndex + 1)
 				currentIndex = currentIndex + 1
@@ -189,8 +221,8 @@ Begin:
 	loop
 	close
 
-	open FOR_READING, inFile, tempFile1
-	open FOR_WRITING, outFile, tempFile2
+	open FOR_READING, inFile, tempFile2
+	open FOR_WRITING, outFile, tempFile3
 	'
 	'   Interpreting numbers
 	'
@@ -228,7 +260,7 @@ Begin:
 	endif
 	close
 
-	open FOR_READING, inFile, tempFile2
+	open FOR_READING, inFile, tempFile3
 	open FOR_WRITING, outFile, destFile
 	'
 	'   Compiling the code
@@ -264,9 +296,7 @@ Begin:
 	print "00"
 	print #outFile, chr$(NULL_BYTE);
 
-	close
-	kill tempFile1
-	kill tempFile2
+	gosub CloseAndDeleteTempFiles
 
 	print
 	print "Compiled successfully."
@@ -280,6 +310,15 @@ OnException:
 	IOresult = err
 	print errorline
 resume next
+
+
+CloseAndDeleteTempFiles:
+	close
+	kill tempFile1
+	kill tempFile2
+	kill tempFile3
+	IOresult = 0
+return
 
 
 function isEmpty%(st as string)

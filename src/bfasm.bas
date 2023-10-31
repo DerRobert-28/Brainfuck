@@ -35,17 +35,18 @@ Variables:
 	dim as integer				_
 		currentIndex, currentLine,	_
 		each,				_
-		i, inFile,			_
+		i, inFile, includeFile,		_
 		outFile,			_
 		tokenPos,			_
 		value
 
-	dim as string				_
-		bfLine, bfToken, byteCode,	_
-		ch, currentName,		_
-		destFile,			_
-		fetchResult, fileName,		_
-		srcFile,			_
+	dim as string					_
+		bfLine, bfToken, byteCode,		_
+		ch, currentName,			_
+		destFile,				_
+		fetchResult, fileName,			_
+		includeLine, includeResult, includeSrc,	_
+		srcFile,				_
 		theMacro, theName
 
 
@@ -104,11 +105,12 @@ Begin:
 				if IOresult then
 					close
 					kill destFile
-					print "Unexpected end of file in line"; currentLine
+					print "Error in line:"; currentLine
+					print "Unexpected end of file."
 					system
 				endif
-				theMacro	= EMPTY
-				currentIndex	= ubound(macroNames)
+				theMacro = EMPTY
+				currentIndex = ubound(macroNames)
 				for each = 0 to currentIndex
 					if macroNames(each) = theName then
 						theMacro = theMacro + Token_Sep + macroCodes(each)
@@ -124,13 +126,42 @@ Begin:
 				print "WARNING: 'endp' is only allowed with 'proc'!"
 				print "         Token will be ignored!"
 
+			case "include"
+				gosub FetchToken
+				if IOresult then
+					close
+					kill destFile
+					print "Error in line:"; currentLine
+					print "Unexpected end of file."
+					system
+				endif
+				includeSrc = fetchResult + EXT_SEP + SRC_EXT
+				print "Including: " + includeSrc
+				includeFile = freefile
+				open FOR_READING, includeFile, includeSrc
+				if IOresult then
+					close
+					kill destFile
+					print "Error in line:"; currentLine
+					print "File not found: " + includeSrc
+					system
+				endif
+				includeResult = EMPTY
+				do until eof(includeFile)
+					line input #includeFile, includeLine
+					includeResult = includeResult + Token_Sep + includeLine
+				loop
+				close includeFile
+				bfLine = trim$(includeResult) + Token_Sep + bfLine
+
 			case "macro", "proc"
 				gosub FetchToken
 				theName = trim$(fetchResult)
 				if IOresult then
 					close
 					kill destFile
-					print "Unexpected end of file in line"; currentLine
+					print "Error in line:"; currentLine
+					print "Unexpected end of file."
 					system
 				endif
 				currentIndex	= ubound(macroNames)
@@ -147,7 +178,8 @@ Begin:
 					if IOresult then
 						close
 						kill destFile
-						print "Unexpected end of file in line"; currentLine
+						print "Error in line:"; currentLine
+						print "Unexpected end of file."
 						system
 					endif
 					if lcase$(fetchResult) = "endm" then exit do
