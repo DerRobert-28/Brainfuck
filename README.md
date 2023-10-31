@@ -18,10 +18,18 @@ The calling syntax is as follows: ```bfc <sourceFile>```
 Before compiling the commands,
 the Brainfuck pre-processor will be executed:
 
-- "**name**" = Define a macro called **name**.
-- { **code** } = Provide the **code** linked to a macro.
-- (**name**) = Call macro by its **name**.
+- **#**&lt;*file*&gt; = Include another Brainfuck source code.
+- **"**&lt;*name*&gt;**"** = Define a macro called *name*.
+- **(**&lt;*name*&gt;**)** = Call macro by its *name*.
+- **{**&lt;*code*&gt;**}** = Provide the *code* linked to a macro.
 
+Includes cannot be nested,
+i.e. includes in include files will not be processed.
+\
+Also,
+the include command must be the only or the last command in a line!
+\
+\
 The macros will not be called like procedures,
 but the code will be inserted as it is.
 \
@@ -45,6 +53,7 @@ Brainfuck itself knows the following commands:
 You can also provide a number, to multiply the number of executions. Following numbers will be added together.
 \
 Examples:
+
 - "+7" = increment seven times
 - "+0" = do not increment at all
 - "-55" = decrement ten (5+5) times
@@ -66,8 +75,9 @@ The Brainfuck Assembler knows the following commands:
 - "**dec**" / "**sub**": decrement current cell
 - "**endm**" / "**endp**": end of a macro definition
 - "**if**" / "**while**": begin a loop, if current cell is not 0
+- "**include** &lt;*file*&gt;": include another assembler file provided as following token
 - "**loop**" / "**loopne**" / "**loopnz**": repeat loop, if current cell is not 0
-- "**macro**" / "**proc**": define a macro; the following token is used as the name
+- "**macro** &lt;*name*&gt;" / "**proc** &lt;*name*&gt;": define a macro called *name*
 - "**nop**": perform no operation
 - "**pop**": goto previous cell
 - "**push**": goto next cell
