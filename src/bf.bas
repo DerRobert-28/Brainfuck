@@ -3,8 +3,8 @@ Includes:
 
 
 Options:
-	$console:only
 	$noprefix
+	title "BVM v" + VERSION
 	option explicit
 	option explicitarray
 
@@ -116,7 +116,7 @@ resume next
 function bvm%(theCode as string)
 	dim as byte     isRunning, openLoops
 	dim as integer  result, value
-	dim as string   bvmCode, byteCode, loopByte, loopCode
+	dim as string   bvmCode, byteCode, currentKey, loopByte, loopCode
 
 	bvmCode = theCode
 	isRunning = 1
@@ -161,8 +161,13 @@ function bvm%(theCode as string)
 
 				case BF_IN
 					do
-						value = cvi(left$(inkey$ + mki$(0), 2))
-					loop while value = 0
+						'value = cinp
+						'value = keyhit and 255
+						currentKey = inkey$
+						'currentKey = cinp
+					loop while isEmpty(currentKey)
+					'loop until value > 0
+					value = asc(right$(currentKey, 1))
 					bvmSetData value
 
 				case BF_INC
@@ -200,13 +205,18 @@ function bvm%(theCode as string)
 end function
 
 
+sub bvmDecData
+	bvmData(bvmDataPtr) = (bvmData(bvmDataPtr) - 1) and 255
+end sub
+
+
 function bvmGetData%()
 	bvmGetData = bvmData(bvmDataPtr) and 255
 end function
 
 
-sub bvmSetData(value%)
-	bvmData(bvmDataPtr) = value% and 255
+sub bvmIncData
+	bvmData(bvmDataPtr) = (bvmData(bvmDataPtr) + 1) and 255
 end sub
 
 
@@ -229,16 +239,6 @@ function bvmPopStack%()
 end function
 
 
-sub bvmDecData
-	bvmData(bvmDataPtr) = (bvmData(bvmDataPtr) - 1) and 255
-end sub
-
-
-sub bvmIncData
-	bvmData(bvmDataPtr) = (bvmData(bvmDataPtr) + 1) and 255
-end sub
-
-
 sub bvmPushData
 	if bvmDataPtr = ubound(bvmData) then
 		bvmDataPtr = lbound(bvmData)
@@ -258,8 +258,13 @@ sub bvmPushStack(stack as integer)
 end sub
 
 
+sub bvmSetData(value%)
+	bvmData(bvmDataPtr) = value% and 255
+end sub
+
+
 function isEmpty%(st as string)
-	isEmpty = (st = EMPTY)
+	isEmpty = (len(st) = 0)
 end function
 
 
