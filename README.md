@@ -60,11 +60,14 @@ The calling syntax is as follows: ```bfasm <sourceFile>```
 The Brainfuck Assembler knows the following commands:
 
 - "**add**" / "**inc**": increment current cell
+- "**call**": insert macro code; the following token is used as the name
 - "**cin**" / "**in**" / "**inp**": read in ASCII character
 - "**cout**" / "**out**": print out ASCII character
 - "**dec**" / "**sub**": decrement current cell
+- "**endm**" / "**endp**": end of a macro definition
 - "**if**" / "**while**": begin a loop, if current cell is not 0
 - "**loop**" / "**loopne**" / "**loopnz**": repeat loop, if current cell is not 0
+- "**macro**" / "**proc**": define a macro; the following token is used as the name
 - "**nop**": perform no operation
 - "**pop**": goto previous cell
 - "**push**": goto next cell

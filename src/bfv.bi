@@ -7,3 +7,4 @@ $versioninfo:OriginalFileName=bf.bas \x26 bfasm.bas \x26 bfc.bas
 $versioninfo:Productname=Brainfuck
 $versioninfo:ProductVersion#=0,2,0,0
 
+const VERSION = "0.2"
