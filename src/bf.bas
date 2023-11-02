@@ -1,48 +1,51 @@
+Includes:
+    '$include:'./bfv.bi'
+
+
 Options:
-    $console:only
     $noprefix
     option explicit
     option explicitarray
 
 
 Constants:
-    const BF_DEC = 11
-    const BF_EXT = "bc"
-    const BF_IF = 12
-    const BF_IN = 15
-    const BF_INC = 10
-    const BF_LOOP = 13
-    const BF_NOP = 0
-    const BF_OUT = 14
-    const BF_POP = 9
-    const BF_PUSH = 8
-    const BF_RET = 7
-    const BF_TERM = "00"
-    const EMPTY = ""
-    const EXT_SEP = "."
-    const FOR_READING = "i"
-    const RESULT_NOP = -1
-    const RESULT_RET = -8
+    const BF_DEC        = 11    'B
+    const BF_EXT        = "bc"
+    const BF_IF     = 12    'C
+    const BF_IN     = 15    'F
+    const BF_INC        = 10    'A
+    const BF_LOOP       = 13    'D
+    const BF_NOP        = 0 '0
+    const BF_OUT        = 14    'E
+    const BF_POP        = 9 '9
+    const BF_PUSH       = 8 '8
+    const BF_RET        = 7 '7
+    const BF_TERM       = "00"
+    const EMPTY     = ""
+    const EXT_SEP       = "."
+    const FOR_READING   = "I"
+    const RESULT_NOP    = -1
+    const RESULT_RET    = -8
 
 
-Globals:
+GlobalVariables:
     dim shared as integer   bvmData(0 to 262143)    '256k of data memory
-    dim shared as long      bvmDataPtr
-    dim shared as long      bvmStack(0 to 65535)    '64k of stack memory
-    dim shared as long      bvmStackPtr
+    dim shared as long  bvmDataPtr
+    dim shared as long  bvmStack(0 to 65535)    '64k of stack memory
+    dim shared as long  bvmStackPtr
     dim shared as integer   IOresult
 
 
 Variables:
-    dim as string   bfFile
-    dim as string   bvmCode
-    dim as string   byteCode
-    dim as string   fileName
-    dim as integer  hi
-    dim as integer  inFile
-    dim as integer  lo
-    dim as integer  result
-    dim as integer  value
+    dim as string               _
+        bfFile, bvmCode, byteCode,  _
+        fileName
+    dim as integer      _
+        hi,     _
+        inFile,     _
+        lo,     _
+        result,     _
+        value
 
 
 Exceptions:
@@ -55,13 +58,16 @@ Begin:
     fileName = trim$(command$)
     bfFile = fileName + EXT_SEP + BF_EXT
 
+    title "BVM v" + VERSION
+    locate, , 1
     print
-    print "Brainfuck Virtual Machine 0.1"
+    print "Brainfuck Virtual Machine v" + VERSION
     print "(c) 2023 by 'Der Robert'"
     print
     print
 
     print "Attempt to open: " + bfFile
+
     inFile = freefile
     open FOR_READING, inFile, bfFile
     if IOresult then
@@ -72,7 +78,6 @@ Begin:
     endif
 
     do until eof(inFile)
-
         byteCode = input$(1, inFile)
         value = asc(byteCode)
 
@@ -80,9 +85,7 @@ Begin:
         hi = (value \ 16) and 15
 
         bvmCode = bvmCode + hex$(lo) + hex$(hi)
-
     loop
-
     close
 
     print "Executing ..."
@@ -98,10 +101,14 @@ Begin:
 
     if pos(0) > 1 then print
     print
-    print "Programme terminated with code: "; ltrim$(str$(result))
+    print "Programme terminated with code: " + ltrim$(str$(result))
     print "> code '-1' means 'normal termination'"
     print "> code '-8' means 'normal return'"
     print
+    print
+    print "Hit any key to quit ..."
+    while inkey$ = ""
+    wend
     system
 End
 
@@ -112,88 +119,93 @@ resume next
 
 
 function bvm%(theCode as string)
-    dim as string   bvmCode
-    dim as string   byteCode
-    dim as byte     isRunning
-    dim as string   loopByte
-    dim as string   loopCode
-    dim as byte     openLoops
-    dim as integer  result
-    dim as integer  value
+    dim as byte openLoops
+    dim as integer  result, value
+    dim as string   bvmCode, byteCode, currentKey, loopByte, loopCode
 
     bvmCode = theCode
-    isRunning = 1
     result = 0
 
-    while isRunning
+    do
+        if isEmpty(bvmCode) then exit do
 
-        if isEmpty(bvmCode) then
-            isRunning = 0
-        elseif left$(bvmCode, len(BF_TERM)) = BF_TERM then
-            isRunning = 0
+        if left$(bvmCode, len(BF_TERM)) = BF_TERM then
             result = RESULT_NOP
+            exit do
         endif
 
         byteCode = left$(bvmCode, 1)
         bvmCode = mid$(bvmCode, 2)
+        
+        result = val("&H" + ucase$(byteCode))
 
-        if isRunning then
+        select case result
+            case BF_DEC
+                bvmDecData
 
-            result = val("&H" + ucase$(byteCode))
+            case BF_IF
+                loopCode = empty
+                openLoops = 1
+                do
+                    loopByte = ucase$(left$(bvmCode, 1))
+                    bvmCode = mid$(bvmCode, 2)
 
-            select case result
-                case BF_DEC
-                    bvmDecData
-                case BF_IF
-                    loopCode = empty
-                    openLoops = 1
-                    do
-                        loopByte = ucase$(left$(bvmCode, 1))
-                        bvmCode = mid$(bvmCode, 2)
+                    if loopByte = hex$(BF_IF) then openLoops = openLoops + 1
+                    if loopByte = hex$(BF_LOOP) then openLoops = openLoops - 1
+                    if openLoops < 1 then exit do
 
-                        if loopByte = hex$(BF_IF) then openLoops = openLoops + 1
-                        if loopByte = hex$(BF_LOOP) then openLoops = openLoops - 1
-                        if openLoops < 1 then exit do
+                    loopCode = loopCode + loopByte
+                loop
+                do
+                    value = bvmGetData
+                    if value = 0 then exit do
+                    result = bvm(loopCode)
+                loop
 
-                        loopCode = loopCode + loopByte
-                    loop
-                    do
-                        value = bvmGetData
-                        if value = 0 then exit do
-                        result = bvm(loopCode)
-                    loop
-                case BF_IN
-                    do
-                        value = cvi(left$(inkey$ + mki$(0), 2))
-                    loop while value = 0
-                    bvmSetData value
-                case BF_INC
-                    bvmIncData
-                case BF_LOOP
-                    isRunning = 0
-                case BF_NOP
-                    'NOP
-                case BF_OUT
-                    print chr$(bvmGetData%);
-                case BF_POP
-                    bvmPopData
-                case BF_PUSH
-                    bvmPushData
-                case BF_RET
-                    result = RESULT_RET
-                    isRunning = 0
-                'case else
-                '    if pos(0) > 1 then print
-                '    print "Illegal bytecode: " + hex$(result%)
-                '    isRunning = 0
-            end select
+            case BF_IN
+                do
+                    currentKey = inkey$
+                loop while isEmpty(currentKey)
+                value = asc(right$(currentKey, 1))
+                bvmSetData value
 
-        endif
+            case BF_INC
+                bvmIncData
 
-    wend
+            case BF_LOOP
+                exit do
+
+            case BF_NOP
+                'NOP
+
+            case BF_OUT
+                print chr$(bvmGetData%);
+
+            case BF_POP
+                bvmPopData
+
+            case BF_PUSH
+                bvmPushData
+
+            case BF_RET
+                result = RESULT_RET
+                exit do
+
+            'case else
+            '   if pos(0) > 1 then print
+            '   print "Illegal bytecode: " + hex$(result%)
+            '   isRunning = 0
+
+        end select
+    loop
 
     bvm = result%
 end function
+
+
+sub bvmDecData
+    bvmData(bvmDataPtr) = (bvmData(bvmDataPtr) - 1) and 255
+end sub
 
 
 function bvmGetData%()
@@ -201,8 +213,8 @@ function bvmGetData%()
 end function
 
 
-sub bvmSetData(value%)
-    bvmData(bvmDataPtr) = value% and 255
+sub bvmIncData
+    bvmData(bvmDataPtr) = (bvmData(bvmDataPtr) + 1) and 255
 end sub
 
 
@@ -225,16 +237,6 @@ function bvmPopStack%()
 end function
 
 
-sub bvmDecData
-    bvmData(bvmDataPtr) = (bvmData(bvmDataPtr) - 1) and 255
-end sub
-
-
-sub bvmIncData
-    bvmData(bvmDataPtr) = (bvmData(bvmDataPtr) + 1) and 255
-end sub
-
-
 sub bvmPushData
     if bvmDataPtr = ubound(bvmData) then
         bvmDataPtr = lbound(bvmData)
@@ -254,20 +256,24 @@ sub bvmPushStack(stack as integer)
 end sub
 
 
+sub bvmSetData(value%)
+    bvmData(bvmDataPtr) = value% and 255
+end sub
+
+
 function isEmpty%(st as string)
-    isEmpty = (st = EMPTY)
+    isEmpty = (len(st) = 0)
 end function
 
 
 function reverse$(st as string)
     dim as integer  i
     dim as string   result
-
+    :
     result = EMPTY
     for i = 1 to len(st)
         result = mid$(st, i, 1) + result
     next
-
+    :
     reverse = result
 end function
-
