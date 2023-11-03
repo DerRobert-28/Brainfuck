@@ -5,6 +5,7 @@
 
 '$include:'lib/application/fileType.bi'
 '$include:'lib/application/greetings.bi'
+'$include:'lib/application/hexCode.bi'
 '$include:'lib/application/macros.bi'
 
 '$include:'lib/bfc/compileFile.bi'
@@ -12,12 +13,12 @@
 '$include:'lib/bfc/NumberList.bi'
 '$include:'lib/bfc/processIncludes.bi'
 '$include:'lib/bfc/processMacros.bi'
-'$include:'lib/bfc/processNumber.bi'
+'$include:'lib/bfc/processNumbers.bi'
 '$include:'lib/bfc/TokenList.bi'
 
 '$include:'lib/classes/Buffer.bi'
 '$include:'lib/classes/Char.bi'
-'$include:'lib/classes/Exceptions.bi'
+'$include:'lib/classes/Exception.bi'
 '$include:'lib/classes/File.bi'
 '$include:'lib/classes/Integer.bi'
 '$include:'lib/classes/String.bi'
@@ -26,6 +27,7 @@
 
 function Main%(cmdLine as string)
 	dim as integer	outFile
+	dim as integer	result
 	dim as string	fileName
 	dim as string	tempIncludesFile
 	dim as string	tempMacrosFile

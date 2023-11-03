@@ -1,6 +1,6 @@
 function getLastMacroIndex%()
 	dim as integer	macroCount
-	dim as integer	currentMacro
+	dim as string	currentMacro
 
 	macroCount = ubound(macroCodeList)
 	currentMacro = macroCodeList(macroCount)

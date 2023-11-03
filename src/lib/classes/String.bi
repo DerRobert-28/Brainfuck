@@ -10,7 +10,7 @@
 '$include:'String/prepend.bi'
 '$include:'String/repeat.bi'
 '$include:'String/reverse.bi'
+'$include:'String/startsWith.bi'
 '$include:'String/subStr.bi'
 '$include:'String/trim.bi'
-'$include:'String/with.bi'
 '$include:'Strings/areEqual.bi'

@@ -111,8 +111,8 @@ function processMacros%(sourceFile as string, targetFile as string)
 		endif
 	loop
 
-	Invoke File.close(inFile)
-	Invoke File.close(outFile)
+	File.close(inFile)
+	File.close(outFile)
 
 	processMacros = result
 end function

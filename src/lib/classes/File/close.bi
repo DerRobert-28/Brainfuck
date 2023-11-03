@@ -1,4 +1,4 @@
-sub File.close(fileHandle)
+sub File.close(fileHandle as integer)
 	dim as integer result
 	Try
 		close fileHandle

@@ -15,7 +15,6 @@ function processIncludes%(outFile as integer, includeFile as string)
 	
 	do until File.endOf(inFile)
 		currentLine = String.trim(File.readLine(inFile))
-		
 		'
 		'Include file with #<fileName>
 		'
@@ -23,8 +22,9 @@ function processIncludes%(outFile as integer, includeFile as string)
 
 			incFile = String.trim(String.subString(currentLine, 1))
 			result = 0
-			
+
 			if String.isNotEmpty(incFile) then
+
 				result = processIncludes(outFile, incFile)
 				if result then exit do
 			endif

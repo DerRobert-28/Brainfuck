@@ -1,4 +1,4 @@
-function File.writeLine%(handle as string, theString as string)
+function File.writeLine%(handle as integer, theString as string)
 	dim as integer result
 	Try
 		print #handle, theString
@@ -7,7 +7,7 @@ function File.writeLine%(handle as string, theString as string)
 	File.writeLine = result
 end function
 
-sub File.writeLine(handle as string, theString as string)
+sub File.writeLine(handle as integer, theString as string)
 	dim as integer dummy
 	dummy = File.writeLine(handle, theString)
 end sub

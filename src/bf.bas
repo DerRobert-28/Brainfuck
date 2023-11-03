@@ -1,5 +1,5 @@
-'$include:'lib/bvm_options.bi'
-'$include:'lib/version_info.bi'
+'$include:'lib/core/bvm_options.bi'
+'$include:'lib/core/version_info.bi'
 
 
 Constants:

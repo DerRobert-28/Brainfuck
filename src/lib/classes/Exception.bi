@@ -1,6 +1,8 @@
 '$include:'Exception/CallingSyntaxException.bi'
+'$include:'Exception/CompilerException.bi'
 '$include:'Exception/FileProcessingException.bi'
 '$include:'Exception/MacroProcessingException.bi'
+'$include:'Exception/NumberProcessingException.bi'
 
 
 function Exception%(handle as integer, message as string)
