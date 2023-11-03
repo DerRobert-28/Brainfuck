@@ -1,13 +1,6 @@
 function processMacros%(sourceFile as string, targetFile as string)
-	dim as integer	inFile
-	dim as integer	outFile
-	dim as integer	result
-	dim as string	bfToken
-	dim as string	macroName
-	dim as string	macroToken
-	dim as string	macroCode
-	dim as integer	currentIndex
-	dim as integer	lastMacroIndex
+	dim as integer	currentIndex, inFile, lastMacroIndex, outFile, result
+	dim as string	bfToken, macroCode, macroName, macroToken
 
 	Try
 		inFile = File.open(sourceFile, FileMode.ForReading)

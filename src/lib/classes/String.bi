@@ -8,6 +8,7 @@
 '$include:'String/isNotEmpty.bi'
 '$include:'String/length.bi'
 '$include:'String/prepend.bi'
+'$include:'String/repeat.bi'
 '$include:'String/reverse.bi'
 '$include:'String/subStr.bi'
 '$include:'String/trim.bi'

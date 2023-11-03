@@ -4,8 +4,8 @@
 
 
 function Exception%(handle as integer, message as string)
-	error handle
 	Console.writeLine message
 	Console.newLine
+	error handle
 	Exception = handle
 end function
