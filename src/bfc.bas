@@ -1,40 +1,10 @@
-'$include:'lib/application/core/versionInfo.bi'
-'$include:'lib/application/core/bfcOptions.bi'
-'$include:'lib/application/core/bfArrays.bi'
-'$include:'lib/application/core/bf.bi'
-
-'$include:'lib/application/fileType.bi'
-'$include:'lib/application/greetings.bi'
-'$include:'lib/application/hexCode.bi'
-'$include:'lib/application/macros.bi'
-
-'$include:'lib/bfc/compileFile.bi'
-'$include:'lib/bfc/mapToCode.bi'
-'$include:'lib/bfc/NumberList.bi'
-'$include:'lib/bfc/processIncludes.bi'
-'$include:'lib/bfc/processMacros.bi'
-'$include:'lib/bfc/processNumbers.bi'
-'$include:'lib/bfc/TokenList.bi'
-
-'$include:'lib/classes/Buffer.bi'
-'$include:'lib/classes/Char.bi'
-'$include:'lib/classes/Exception.bi'
-'$include:'lib/classes/File.bi'
-'$include:'lib/classes/Integer.bi'
-'$include:'lib/classes/String.bi'
-'$include:'lib/classes/System.bi'
+'$include:'bfc.bi'
 
 
 function Main%(cmdLine as string)
-	dim as integer	outFile
-	dim as integer	result
-	dim as string	fileName
-	dim as string	tempIncludesFile
-	dim as string	tempMacrosFile
-	dim as string	tempNumbersFile
-	dim as string	binaryFile
-	dim as string	currentInputFile
-	dim as string	messageBuffer
+	dim as integer	outFile, result
+	dim as string	binaryFile, currentInputFile, fileName, messageBuffer
+	dim as string	tempIncludesFile, tempMacrosFile, tempNumbersFile
 
 	bfcGreeting With(VERSION)
 

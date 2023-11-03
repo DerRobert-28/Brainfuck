@@ -1,5 +1,5 @@
-'$include:'lib/core/bvm_options.bi'
-'$include:'lib/core/version_info.bi'
+'$include:'lib/application/core/bvmOptions.bi'
+'$include:'lib/application/core/versionInfo.bi'
 
 
 Constants:
@@ -48,6 +48,7 @@ Exceptions:
 
 
 Begin:
+screen 0
     bvmCode = EMPTY
     fileName = trim$(command$)
     bfFile = fileName + EXT_SEP + BF_EXT
@@ -62,13 +63,17 @@ Begin:
 
     print "Attempt to open: " + bfFile
 
+    while inkey$ = ""
+    wend
+
     inFile = freefile
     open FOR_READING, inFile, bfFile
     if IOresult then
         print "Could not access: " + bfFile
         print "Check file and try again."
         close
-        system
+        end
+        'system
     endif
 
     do until eof(inFile)
