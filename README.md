@@ -1,4 +1,4 @@
-# Brainfuck 0.1
+# Brainfuck 0.3
 
 This is a little project that I wrote in QB64.
 It contains three CLI tools:

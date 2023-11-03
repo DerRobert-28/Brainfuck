@@ -1,0 +1,5 @@
+'$include:'macros/addMacroCode.bi'
+'$include:'macros/addMacroName.bi'
+'$include:'macros/getLastMacroIndex.bi'
+'$include:'macros/getMacroCode.bi'
+'$include:'macros/getMacroIndexOf.bi'

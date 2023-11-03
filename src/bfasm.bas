@@ -1,12 +1,5 @@
-Includes:
-	'$include:'./bfv.bi'
-
-
-Options:
-	$console:only
-	$noprefix
-	option explicit
-	option explicitarray
+'$include:'lib/bfc_options.bi'
+'$include:'lib/version_info.bi'
 
 
 Constants:

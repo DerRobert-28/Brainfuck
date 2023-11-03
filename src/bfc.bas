@@ -1,12 +1,71 @@
-Includes:
-	'$include:'./bfv.bi'
+'$include:'lib/application/core/versionInfo.bi'
+'$include:'lib/application/core/bfcOptions.bi'
+'$include:'lib/application/core/bfArrays.bi'
+'$include:'lib/application/core/bf.bi'
+
+'$include:'lib/application/fileType.bi'
+'$include:'lib/application/greetings.bi'
+'$include:'lib/application/macros.bi'
+
+'$include:'lib/bfc/processIncludes.bi'
+'$include:'lib/bfc/processMacros.bi'
+
+'$include:'lib/classes/Buffer.bi'
+'$include:'lib/classes/Char.bi'
+'$include:'lib/classes/Exceptions.bi'
+'$include:'lib/classes/File.bi'
+'$include:'lib/classes/Integer.bi'
+'$include:'lib/classes/String.bi'
+'$include:'lib/classes/System.bi'
 
 
-Options:
-	$console:only
-	$noprefix
-	option explicit
-	option explicitarray
+function Main%(cmdLine as string)
+	dim as integer	outFile
+	dim as string	fileName
+	dim as string	tempFile1
+	dim as string	currentInputFile
+	dim as string	messageBuffer
+
+	bfcGreeting With(VERSION)
+
+	fileName = String.trim(cmdLine)
+	if String.isEmpty(fileName) then
+		Main = Throw(CallingSyntaxException("Calling syntax: bfc <srcFile>"))
+		exit function
+	endif
+	
+	Console.writeLine "Step 1: Processing includes ..."
+	tempFile1 = fileType(fileName, "tmp.1")
+	outFile = File.open(tempFile1, FileMode.ForWriting)
+	result = processIncludes(outFile, fileName)
+	File.close outFile
+
+	if result then
+		Invoke File.remove(tempFile1)
+		Buffer messageBuffer, "Error processing includes."
+		Buffer.writeLine messageBuffer, "Check source file(s) and try again."
+		Main = Throw(FileProcessingException(messageBuffer))
+		exit function
+	endif
+
+	Console.writeLine "Step 2: Processing macros ..."
+	tempFile2 = fileType(fileName, "tmp.2")
+	result = processMacros(tempFile1, tempFile2)
+	
+	if result then
+		Invoke File.remove(tempFile1)
+		Invoke File.remove(tempFile2)
+		Buffer messageBuffer, "Processing macros was not successful."
+		Buffer.writeLine messageBuffer, "Check source file(s) and try again."
+		Main = Throw(MacroProcessingException(messageBuffer))
+		exit function
+	endif
+
+end function
+
+
+
+
 
 
 Constants:
@@ -14,8 +73,8 @@ Constants:
 	const DEST_EXT		= "bc"
 	const EMPTY		= ""
 	const EXT_SEP		= "."
-	const FOR_READING	= "I"
-	const FOR_WRITING	= "O"
+	' const FOR_READING	= "I"
+	' const FOR_WRITING	= "O"
 	const NULL_BYTE		= 0
 	const NUMBER_LIST	= "0123456789"
 	const SRC_EXT		= "bf"
@@ -25,14 +84,14 @@ Constants:
 	const TOKEN_LIST	= "+,-.<>[]"
 
 
+GlobalArrays:
+	redim shared as string	macroCodes(0)
+	redim shared as string	macroNames(0)
+
+
 GlobalVariables:
 	dim shared as integer	IOresult
 	dim shared as string	Token_Sep
-
-
-Arrays:
-	redim as string	macroCodes(0)
-	redim as string	macroNames(0)
 
 
 Variables:
@@ -42,6 +101,7 @@ Variables:
 	  	foundIndex,		_
 	  	inFile, includeFile,	_
 	  	outFile,		_
+		result,			_
 		value
 	dim as string								_
 		bfLine, bfToken, byteCode,					_
@@ -60,6 +120,7 @@ Exceptions:
 	on error goto OnException
 
 
+
 Begin:
 	Token_Sep   = chr$(CHAR_SPACE)
 
@@ -67,71 +128,17 @@ Begin:
 	push        = EMPTY
 
 	fileName    = trim$(command$)
-	srcFile     = fileName + EXT_SEP + SRC_EXT
+	'srcFile     = fileName + EXT_SEP + SRC_EXT
 	destFile    = fileName + EXT_SEP + DEST_EXT
-	tempFile1   = fileName + EXT_SEP + TEMP_EXT1
+	tempFile1   = fileName + EXT_SEP + "1"
 	tempFile2   = fileName + EXT_SEP + TEMP_EXT2
 	tempFile3   = fileName + EXT_SEP + TEMP_EXT3
 
-	print
-	print "Brainfuck Compiler v" + VERSION
-	print "(c) 2023 by 'Der Robert'"
-	print
-	print
 
-	print "Attempt to open: " + srcFile
+
 	inFile = freefile
-	open FOR_READING, inFile, srcFile
-	if IOresult then
-		print "Could not access: " + srcFile
-		print "Check file and try again."
-		close
-		system
-	endif
-
-	print "Attempt to prepare: " + destFile
-	outFile = freefile
-	open FOR_WRITING, outFile, tempFile1
-	if IOresult then
-		gosub CloseAndDeleteTempFiles
-		print "Could not access output file: " + destFile
-		print "Check file access and try again."
-		system
-	endif
-
-	print
-	print "Writing file ..."
-	'
-	'   Pre-processing includes
-	'
-	do until eof(inFile)
-		line input #inFile, includeSrc
-		includeSrc = trim$(includeSrc)
-		if left$(includeSrc, 1) = "#" then
-			includeSrc = trim$(mid$(includeSrc, 2))
-			if isNotEmpty(includeSrc) then
-				includeSrc = includeSrc + EXT_SEP + SRC_EXT
-				print "Including: " + includeSrc
-				includeFile = freefile
-				open FOR_READING, includeFile, includeSrc
-				if IOresult then
-					gosub CloseAndDeleteTempFiles
-					print "Could not access include file: " + includeSrc
-					print "Check file access and try again."
-					system
-				endif
-				do until eof(includeFile)
-					line input #includeFile, includeLine
-					print #outFile, includeLine
-				loop
-			endif
-		else
-			print #outFile, includeSrc
-		endif
-	loop
-	close
-
 	open FOR_READING, inFile, tempFile1
+	outFile = freefile
 	open FOR_WRITING, outFile, tempFile2
 	'
 	'   Pre-processing macros
@@ -308,7 +315,7 @@ End
 
 OnException:
 	IOresult = err
-	print errorline
+	print errorline, errormessage$
 resume next
 
 
@@ -338,3 +345,4 @@ function min%(first as integer, second as integer)
 		min = second
 	endif
 end function
+
