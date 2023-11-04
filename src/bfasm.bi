@@ -9,13 +9,10 @@
 '$include:'lib/application/macros.bi'
 '$include:'lib/application/hexTokens.bi'
 
-'$include:'lib/bfc/compileFile.bi'
-'$include:'lib/bfc/mapToCode.bi'
-'$include:'lib/bfc/NumberList.bi'
-'$include:'lib/bfc/processIncludes.bi'
-'$include:'lib/bfc/processMacros.bi'
-'$include:'lib/bfc/processNumbers.bi'
-'$include:'lib/bfc/TokenList.bi'
+'$include:'lib/bfasm/compileFile.bi'
+'$include:'lib/bfasm/fetchToken.bi'
+'$include:'lib/bfasm/HexNumberList.bi'
+'$include:'lib/bfasm/mapToCode.bi'
 
 '$include:'lib/classes/Buffer.bi'
 '$include:'lib/classes/Char.bi'

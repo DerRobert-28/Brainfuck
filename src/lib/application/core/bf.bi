@@ -1,4 +1,5 @@
 Constants:
+	const	COMPILATION_ERROR = 1
 	const	COMPILED_SUCCESSFULLY = 0
 	const	NORMAL_RETURN = -8
 	const	NORMAL_TERMINATION = -1

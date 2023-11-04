@@ -5,3 +5,7 @@ sub File.close(fileHandle as integer)
 	Catch result
 	EndTry
 end sub
+
+sub File.closeAll()
+	close
+end sub
