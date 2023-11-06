@@ -7,11 +7,11 @@
 '$include:'lib/application/greetings.bi'
 '$include:'lib/application/hexCode.bi'
 '$include:'lib/application/macros.bi'
+'$include:'lib/application/HexNumberList.bi'
 '$include:'lib/application/hexTokens.bi'
 
 '$include:'lib/bfasm/compileFile.bi'
 '$include:'lib/bfasm/fetchToken.bi'
-'$include:'lib/bfasm/HexNumberList.bi'
 '$include:'lib/bfasm/mapToCode.bi'
 
 '$include:'lib/classes/Buffer.bi'

@@ -9,9 +9,9 @@ function fetchToken$(handle as integer, currentLineByRef as string)
 		result = currentLineByRef
 		currentLineByRef = String.Empty
 	else
-		result = String.subStr(currentLineByRef, 0, index - 1)
+		result = String.subStr(currentLineByRef, 0, index)
 		currentLineByRef = String.trim(String.subString(currentLineByRef, index))
 	endif
 
-	fetchToken = result
+	fetchToken = String.trim(result)
 end function

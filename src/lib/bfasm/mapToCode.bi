@@ -3,6 +3,7 @@ function mapToCode$(theToken as string)
 
 	bfToken = String.toLowerCase(String.trim(theToken))
 	result = String.Empty
+
 	if Strings.areEqual(bfToken, "add") then result = HexToken_PlusOne
 	if Strings.areEqual(bfToken, "cin") then result = HexToken_InputCell
 	if Strings.areEqual(bfToken, "cout") then result = HexToken_OutputCell

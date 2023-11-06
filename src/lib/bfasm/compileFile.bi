@@ -1,16 +1,15 @@
 function compileFile%(sourceFile as string, targetFile as string)
-	dim as integer	result
-	dim as integer	inFile
-	dim as integer	outFile
-	dim as string	currentLine
-	dim as string	currentToken
-	dim as string	currentCode
-	dim as string	currentStream
-	dim as string	fetchResult
-	dim as integer	byteCode
-
-	dim as string	loMode
-	dim as string	hiMode
+	dim as integer	byteCode,		_
+			currentIndex,		_
+			inFile, includeFile,	_
+			outFile,		_
+			result
+	dim as long	each
+	dim as string	currentCode, currentLine, currentMacro, currentStream, currentToken,	_
+			fetchResult,								_
+			hiCode, hiMode,								_
+			includeLine, includeLines,						_
+			loCode, loMode, lowerToken
 	
 	Try
 		inFile = File.open(sourceFile, FileMode.ForReading)
@@ -33,30 +32,46 @@ function compileFile%(sourceFile as string, targetFile as string)
 	do until File.endOf(inFile)
 		currentToken = String.toLowerCase(fetchToken(inFile, currentLine))
 
-		if Strings.areEqual(currentToken, ".mode") then
+		if String.startsWith(currentToken, ";") then
+			currentLine = String.Empty
+
+		elseif Strings.areEqual(currentToken, ".ascii") then
+			loMode = HexToken_SwitchToAsciiMode
+
+		elseif Strings.areEqual(currentToken, ".byte") then
+			loMode = HexToken_SwitchToAsciiMode
+
+		elseif Strings.areEqual(currentToken, ".console") then
+			hiMode = HexToken_SwitchToTextMode
+
+		elseif Strings.areEqual(currentToken, ".digit") then
+			loMode = HexToken_SwitchToNumberMode
+
+		elseif Strings.areEqual(currentToken, ".graphic") then
+			hiMode = HexToken_SwitchToGraphMode
+
+		elseif Strings.areEqual(currentToken, ".graphics") then
+			hiMode = HexToken_SwitchToGraphMode
+
+		elseif Strings.areEqual(currentToken, ".mode") then
 			Try
 				fetchResult = String.toLowerCase(fetchToken(inFile, currentLine))
 			Catch result
 			EndTry
 
-			if result then
-				File.closeAll
-				Console.writeLine "Unexpected end of file!"
-				exit do
+			if String.isNotEmpty(fetchResult) then
+				String.prepend fetchResult, "."
+				String.prepend currentLine, fetchResult
 			endif
-			
-			select case fetchResult
-				case "ascii": loCode = HexToken_SwitchToAsciiMode
-				case "byte": loCode = HexToken_SwitchToAsciiMode
-				case "console": hiCode = HexToken_SwitchToTextMode
-				case "digit": loCode = HexToken_SwitchToNumberMode
-				case "text": hiCode = HexToken_SwitchToTextMode
-				case "graph": hiCode = HexToken_SwitchToGraphMode
-				case "graphic": hiCode = HexToken_SwitchToGraphMode
-				case "graphics": hiCode = HexToken_SwitchToGraphMode
-				case "number": loCode = HexToken_SwitchToNumberMode
-				case "video": hiCode = HexToken_SwitchToGraphMode
-			end select
+
+		elseif Strings.areEqual(currentToken, ".number") then
+			loMode = HexToken_SwitchToNumberMode
+
+		elseif Strings.areEqual(currentToken, ".text") then
+			hiMode = HexToken_SwitchToTextMode
+
+		elseif Strings.areEqual(currentToken, ".video") then
+			hiMode = HexToken_SwitchToGraphMode
 
 		elseif Strings.areEqual(currentToken, "call") then
 			Try
@@ -66,32 +81,95 @@ function compileFile%(sourceFile as string, targetFile as string)
 
 			if result then
 				File.closeAll
-				Console.writeLine "Unexpected end of file."
+				Console.writeLine "Missing macro at 'call' token."
 				exit do
 			endif
 
+			currentIndex = getMacroIndexOf(fetchResult)
+			String.prepend currentLine, getMacroCode(currentIndex)
+
+		elseif Strings.areEqual(currentToken, "include") then
+			Try
+				fetchResult = fetchToken(inFile, currentLine)
+			Catch result
+			EndTry
+
+			if result then
+				File.closeAll
+				Console.writeLine "Missing file name at 'include' token."
+				exit do
+			endif
+
+			Try
+				includeFile = File.open(BF_AssemblerFile(fetchResult), FileMode.ForReading)
+			Catch result
+			EndTry
+
+			if result then
+				File.closeAll
+				Console.writeLine String.concat("Could not include file: ", fetchResult)
+				exit do
+			endif
+
+			includeLines = String.Empty
+			do until File.endOf(includeFile)
+				includeLine = File.readLine(includeFile)
+				String.append includeLines, String.concat(includeLine, Char.Space)
+			loop
+			File.close includeFile
+
+			String.prepend currentLine, includeLines
 			
+		elseif Strings.areEqual(currentToken, "macro") then
+			Try
+				fetchResult = fetchToken(inFile, currentLine)
+			Catch result
+			EndTry
 
-' 				gosub FetchToken
-' 				theName = trim$(fetchResult)
-' 				if IOresult then
-' 					close
-' 					kill destFile
-' 					print "Error in line:"; currentLine
-' 					print "Unexpected end of file."
-' 					system
-' 				endif
-' 				theMacro = EMPTY
-' 				currentIndex = ubound(macroNames)
-' 				for each = 0 to currentIndex
-' 					if macroNames(each) = theName then
-' 						theMacro = theMacro + Token_Sep + macroCodes(each)
-' 					endif
-' 				next
-' 				bfLine = trim$(theMacro) + Token_Sep + bfLine
+			if result then
+				File.closeAll
+				Console.writeLine "Missing macro name."
+				exit do
+			endif
 
+			currentIndex = addMacroName(fetchResult)
+			currentMacro = String.Empty
 
+			do
+				Try
+					fetchResult = fetchToken(inFile, currentLine)
+				Catch result
+				EndTry
 
+				if result then
+					File.closeAll
+					Console.writeLine "Unexpected end of file."
+					exit do
+				endif
+
+				lowerToken = String.toLowerCase(fetchResult)
+				
+				if String.startsWith(fetchResult, ";") then
+					currentLine = String.Empty
+				elseif Strings.areEqual(lowerToken, "endm") then
+					exit do
+				elseif Strings.areEqual(lowerToken, "endp") then
+					exit do
+				elseif Strings.areEqual(lowerToken, "macro") then
+					Console.writeLine "WARNING: Nested macros are not allowed!"
+					Console.writeLine "         Token 'macro' will be ignored!"
+				elseif Strings.areEqual(lowerToken, "proc") then
+					Console.writeLine "WARNING: Nested procedures are not allowed!"
+					Console.writeLine "         Token 'proc' will be ignored!"
+				else
+					String.append currentMacro, String.concat(Char.Space, fetchResult)
+				endif
+			loop
+
+			addMacroCode currentIndex, String.trim(currentMacro)
+		
+		elseif Strings.areEqual(currentToken, "proc") then
+			String.prepend currentLine, "macro "
 
 		elseif String.startsWith(currentToken, "st_") then
 			if String.length(currentToken) <> 4 then
@@ -99,16 +177,16 @@ function compileFile%(sourceFile as string, targetFile as string)
 				result = COMPILATION_ERROR
 				exit do
 			endif
-			currentCode = HexToken_Store(String.charAt(3))
+			currentCode = HexToken_Store(String.charAt(currentToken, 3))
 
 			if Strings.areEqual(currentCode, HexToken_SwitchToAsciiMode) then
-				String.prepent currentLine, ".mode ascii "
+				String.prepend currentLine, ".ascii "
 			elseif Strings.areEqual(currentCode, HexToken_SwitchToGraphMode) then
-				String.prepent currentLine, ".mode video "
+				String.prepend currentLine, ".video "
 			elseif Strings.areEqual(currentCode, HexToken_SwitchToNumberMode) then
-				String.prepent currentLine, ".mode number "
+				String.prepend currentLine, ".number "
 			elseif Strings.areEqual(currentCode, HexToken_SwitchToTextMode) then
-				String.prepent currentLine, ".mode text "
+				String.prepend currentLine, ".text "
 			else
 				String.append currentStream, currentCode
 				while String.length(currentStream) > 2
@@ -130,13 +208,16 @@ function compileFile%(sourceFile as string, targetFile as string)
 		exit function
 	endif
 
-	String.append currentStream, "000"
-	while String.length(currentStream) > 2
-		currentCode = String.subStr(currentStream, 0, 2)
-		byteCode = hex2dec(currentToken)
+	String.append currentStream, HexToken_Return
+	String.append currentStream, HexToken_NoOperation
+	String.append currentStream, HexToken_NoOperation
+
+	for each = 1 to String.length(currentStream) step 2
+		loCode = String.subStr(currentStream, each - 1, 1)
+		hiCode = String.subStr(currentStream, each, 1)
+		byteCode = hex2Dec(String.concat(hiCode, loCode))
 		File.write outFile, Char.from(byteCode)
-		currentStream = String.subString(currentStream, 2)
-	wend
+	next
 
 	Invoke File.seek(outFile, 0)
 	currentCode = String.concat(hiMode, loMode)
@@ -466,3 +547,21 @@ end function
 ' 		min = second
 ' 	endif
 ' end function
+
+' 				gosub FetchToken
+' 				theName = trim$(fetchResult)
+' 				if IOresult then
+' 					close
+' 					kill destFile
+' 					print "Error in line:"; currentLine
+' 					print "Unexpected end of file."
+' 					system
+' 				endif
+' 				theMacro = EMPTY
+' 				currentIndex = ubound(macroNames)
+' 				for each = 0 to currentIndex
+' 					if macroNames(each) = theName then
+' 						theMacro = theMacro + Token_Sep + macroCodes(each)
+' 					endif
+' 				next
+' 				bfLine = trim$(theMacro) + Token_Sep + bfLine

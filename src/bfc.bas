@@ -1,5 +1,6 @@
 '$include:'bfc.bi'
 
+
 function Main%(cmdLine as string)
 	dim as integer	outFile, result
 	dim as string	binaryFile, currentInputFile, fileName, messageBuffer

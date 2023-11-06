@@ -1,8 +1,9 @@
 '$include:'bfasm.bi'
 
+
 function Main%(cmdLine as string)
 	dim as integer	result
-	dim as string	binaryFile, fileName, sourceFile
+	dim as string	binaryFile, fileName, messageBuffer, sourceFile
 
 	bfasmGreeting With(VERSION)
 

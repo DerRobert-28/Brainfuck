@@ -12,8 +12,7 @@
 '$include:'String/reverse.bi'
 '$include:'String/startsWith.bi'
 '$include:'String/subStr.bi'
-'$include:'String/toLowerCase.bi'
-'$include:'String/toUpperCase.bi'
+'$include:'String/toCase.bi'
 '$include:'String/trim.bi'
 
 '$include:'Strings/areEqual.bi'

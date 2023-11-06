@@ -7,6 +7,7 @@
 '$include:'lib/application/greetings.bi'
 '$include:'lib/application/hexCode.bi'
 '$include:'lib/application/macros.bi'
+'$include:'lib/application/HexNumberList.bi'
 '$include:'lib/application/hexTokens.bi'
 
 '$include:'lib/bfc/compileFile.bi'

@@ -1,12 +1,13 @@
 function compileFile%(sourceFile as string, targetFile as string)
-	dim as integer	result
-	dim as integer	inFile
-	dim as integer	outFile
-	dim as string	bfToken
+	dim as integer	byteCode,	_
+			inFile,		_
+			outFile,	_
+			result
 	dim as long	each
-	dim as integer	byteCode
-	dim as string	hexCode
-	dim as string	byteCodeBuffer
+	dim as string	bfToken, byteCodeBuffer,	_
+			currentCode,			_
+			loCode,				_
+			hiCode
 
 	Try
 		inFile = File.open(sourceFile, FileMode.ForReading)
@@ -33,7 +34,10 @@ function compileFile%(sourceFile as string, targetFile as string)
 		compileFile = result
 		exit function
 	endif
-	String.append byteCodeBuffer, "000"
+
+	String.append byteCodeBuffer, HexToken_Return
+	String.append byteCodeBuffer, HexToken_NoOperation
+	String.append byteCodeBuffer, HexToken_NoOperation
 
 	Try
 		outFile = File.open(targetFile, FileMode.ForWriting)
@@ -45,9 +49,15 @@ function compileFile%(sourceFile as string, targetFile as string)
 		exit function
 	endif
 
+	'prepare with reserved byte:
+	currentCode = String.concat(HexToken_SwitchToTextMode, HexToken_SwitchToAsciiMode)
+	byteCode = hex2dec(currentCode)
+	File.write outFile, Char.from(byteCode)
+	
 	for each = 1 to String.length(byteCodeBuffer) step 2
-		hexCode = String.subStr(byteCodeBuffer, each - 1, 2)
-		byteCode = hex2Dec(hexCode)
+		loCode = String.subStr(byteCodeBuffer, each - 1, 1)
+		hiCode = String.subStr(byteCodeBuffer, each, 1)
+		byteCode = hex2Dec(String.concat(hiCode, loCode))
 		File.write outFile, Char.from(byteCode)
 	next
 	File.close outFile

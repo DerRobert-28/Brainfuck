@@ -1,0 +1,23 @@
+macro	add
+	if
+		pop
+		inc
+		push
+		dec
+	loop	
+endm
+
+	inc inc
+	push
+	inc inc inc
+
+call	add
+
+	inc inc inc inc inc inc inc inc
+	inc inc inc inc inc inc inc inc
+	inc inc inc inc inc inc inc inc
+	inc inc inc inc inc inc inc inc
+	inc inc inc inc inc inc inc inc
+	inc inc inc inc inc inc inc inc
+	
+	out
