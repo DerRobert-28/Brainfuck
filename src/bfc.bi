@@ -1,7 +1,7 @@
 '$include:'lib/application/core/versionInfo.bi'
 '$include:'lib/application/core/bfOptions.bi'
 '$include:'lib/application/core/bfArrays.bi'
-'$include:'lib/application/core/bf.bi'
+'$include:'lib/application/core/main.bi'
 
 '$include:'lib/application/fileType.bi'
 '$include:'lib/application/greetings.bi'

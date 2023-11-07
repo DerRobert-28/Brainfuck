@@ -9,6 +9,8 @@ function Main%(cmdLine as string)
 	dim as string	byteCodeStream
 	dim as string	byteCode
 	dim as string	hexCode
+	dim as string	NormalReturn
+	dim as string	NormalTermination
 
 	bvmInit With(VERSION)
 
@@ -39,19 +41,23 @@ function Main%(cmdLine as string)
 
 	result = executeCode(byteCodeStream, 0)
 	resultStr = Integer.toString(result)
+	NormalReturn = Integer.toString(NORMAL_RETURN)
+	NormalTermination = Integer.toString(NORMAL_TERMINATION)
 
 	if Console.getCursorPos then Console.newLine
 	Console.newLine
 	Console.writeLine String.concat("Programme terminated with code: ", resultStr)
-	Console.writeLine "> code '-1' means 'normal termination'"
-	Console.writeLine "> code '-8' means 'normal return'"
+	Console.writeLine String.concat2("> code '", NormalReturn, "' means 'normal return'")
+	Console.writeLine String.concat2("> code '", NormalTermination, "' means 'normal termination'")
 	Console.newLine
 	Console.newLine
-	Console.setCursor 0, Console.getHeight - 1
+	'Console.setCursor 0, Console.getHeight - 1
 	Console.writeLine "Hit any key to quit ..."
 	Invokes Console.read(1)
 	
-	Main = When((result = -1) or (result = -8), TERMINATED_SUCCESSFULLY, TERMINATED_WITH_ERROR)
+	Main = When(Either(result = NORMAL_RETURN, result = NORMAL_TERMINATION),	_
+		TERMINATED_SUCCESSFULLY,						_
+		TERMINATED_WITH_ERROR)
 end function
 
 

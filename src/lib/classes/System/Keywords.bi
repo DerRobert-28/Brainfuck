@@ -1,4 +1,7 @@
+'$include:'Keywords/Boolean.bi'
+'$include:'Keywords/Both.bi'
 '$include:'Keywords/Catch.bi'
+'$include:'Keywords/Either.bi'
 '$include:'Keywords/Invoke.bi'
 '$include:'Keywords/Throw.bi'
 '$include:'Keywords/Try.bi'

@@ -1,3 +1,5 @@
+'$include:'Integer/fromPackedString.bi'
 '$include:'Integer/max.bi'
 '$include:'Integer/min.bi'
+'$include:'Integer/toPackedString.bi'
 '$include:'Integer/toString.bi'

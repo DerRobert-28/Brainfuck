@@ -5,7 +5,7 @@ function Main%(cmdLine as string)
 	dim as integer	result
 	dim as string	binaryFile, fileName, messageBuffer, sourceFile
 
-	Invoke bfasmGreeting(With(VERSION))
+	bfasmGreeting With(VERSION)
 
 	fileName = String.trim(cmdLine)
 	if String.isEmpty(fileName) then
