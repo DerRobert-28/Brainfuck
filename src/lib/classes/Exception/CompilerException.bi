@@ -1,3 +1,3 @@
 function CompilerException%(message as string)
-	CompilerException = Exception(1005, message)
+	CompilerException = Exception(1002, message)
 end function

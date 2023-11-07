@@ -14,9 +14,9 @@ end sub
 
 
 sub generalGreeting(message as string, withVersion as string)
-	print
-	print message + " v" + withVersion
-	print "(c) 2023 by 'Der Robert'"
-	print
-	print
+	Console.newLine
+	Console.writeLine String.concat2(message, " v", withVersion)
+	Console.writeLine "(c) 2023 by 'Der Robert'"
+	Console.newLine
+	Console.newLine
 end sub

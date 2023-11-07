@@ -1,11 +1,11 @@
-macro	add
+proc	add
 	if
 		pop
 		inc
 		push
 		dec
 	loop	
-endm
+endp
 
 	inc inc
 	push

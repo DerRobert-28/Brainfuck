@@ -1,5 +1,6 @@
 '$include:'Exception/CallingSyntaxException.bi'
 '$include:'Exception/CompilerException.bi'
+'$include:'Exception/FileAccessException.bi'
 '$include:'Exception/FileProcessingException.bi'
 '$include:'Exception/MacroProcessingException.bi'
 '$include:'Exception/NumberProcessingException.bi'

@@ -3,6 +3,8 @@ Constants:
 	const	COMPILED_SUCCESSFULLY = 0
 	const	NORMAL_RETURN = -8
 	const	NORMAL_TERMINATION = -1
+	const	TERMINATED_SUCCESSFULLY = 0
+	const	TERMINATED_WITH_ERROR = 1
 
 Globals:
 	dim shared as integer IOresult

@@ -1,3 +1,3 @@
 function MacroProcessingException%(message as string)
-	MacroProcessingException = Exception(1003, message)
+	MacroProcessingException = Exception(1005, message)
 end function

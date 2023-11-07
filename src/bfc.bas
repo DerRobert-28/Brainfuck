@@ -6,7 +6,7 @@ function Main%(cmdLine as string)
 	dim as string	binaryFile, currentInputFile, fileName, messageBuffer
 	dim as string	tempIncludesFile, tempMacrosFile, tempNumbersFile
 
-	bfcGreeting With(VERSION)
+	Invoke bfcGreeting(With(VERSION))
 
 	fileName = String.trim(cmdLine)
 	if String.isEmpty(fileName) then
