@@ -23,5 +23,6 @@
 '$include:'lib/classes/Exception.bi'
 '$include:'lib/classes/File.bi'
 '$include:'lib/classes/Integer.bi'
+'$include:'lib/classes/Long.bi'
 '$include:'lib/classes/String.bi'
 '$include:'lib/classes/System.bi'

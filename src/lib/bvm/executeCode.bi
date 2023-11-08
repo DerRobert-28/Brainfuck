@@ -1,29 +1,33 @@
 function executeCode%(codeBuffer as string, bvmDataPtr as long)
-	dim as integer		result
-	dim as unsigned long	index
-	dim as string		lastCode
+	dim as integer		loopCounter,	_
+				result,		_
+				simCounter,	_
+				value,		_
+				xPos,		_
+				yPos
 	dim as long		nextIndex
-	dim as integer		loopCounter
-	dim as integer		simCounter
-	dim as string		code
-	dim as string		theKey
-	dim as string		indexStr
-	dim as string		nextCode
-	dim as string		stackBuffer
-	dim as integer		value
-	dim as string		loMode, hiMode
-	dim as integer		xPos, yPos
+	dim as string		code,				_
+				hiMode,				_
+				indexStr,			_
+				lastCode, loMode, loopBuffer,	_
+				nextCode,			_
+				stackBuffer,			_
+				theKey
+	dim as unsigned long	index
 	
-	result = 0
-	lastCode = String.Empty
-	stackBuffer = String.Empty
 	bvmDataPtr = 0
+	result = 0
+	simCounter = 0
+	lastCode = String.Empty
+	loopBuffer = String.Empty
+	stackBuffer = String.Empty
 	xPos = 0
 	yPos = 0
 
 	do
 		code = String.charAt(codeBuffer, index)
 		if Both(simCounter = 0, Strings.areEqual(code, HexToken_InputCell)) then
+			Debug.message "Input Cell"
 			if Strings.areEqual(hiMode, HexToken_SwitchToGraphMode) then
 				value = 0
 				do
@@ -76,9 +80,11 @@ function executeCode%(codeBuffer as string, bvmDataPtr as long)
 			endif
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_MinusOne)) then
+			Debug.message "Minus One"
 			bvmData(bvmDataPtr) = bvmData(bvmDataPtr) - 1
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_NextCell)) then
+			Debug.message "Next Cell"
 			if bvmDataPtr >= ubound(bvmData) then
 				bvmDataPtr = 0
 			else
@@ -86,12 +92,14 @@ function executeCode%(codeBuffer as string, bvmDataPtr as long)
 			endif
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_NoOperation)) then
+			Debug.message "No Operation"
 			if Strings.areEqual(code, lastCode) then
 				result = NORMAL_TERMINATION
 				exit do
 			endif
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_OutputCell)) then
+			Debug.message "Output Cell"
 			value = bvmData(bvmDataPtr) and 255
 			if Strings.areEqual(hiMode, HexToken_SwitchToGraphMode) then
 				teleTypePixel xPos, yPos, value
@@ -102,9 +110,11 @@ function executeCode%(codeBuffer as string, bvmDataPtr as long)
 			endif
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_PlusOne)) then
+			Debug.message "Plus One"
 			bvmData(bvmDataPtr) = bvmData(bvmDataPtr) + 1
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_PrevCell)) then
+			Debug.message "Previous Cell"
 			if bvmDataPtr < 1 then
 				bvmDataPtr = ubound(bvmData)
 			else
@@ -112,6 +122,7 @@ function executeCode%(codeBuffer as string, bvmDataPtr as long)
 			endif
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_Return)) then
+			Debug.message "Return"
 			if String.isEmpty(stackBuffer) then
 				result = NORMAL_RETURN
 				exit do
@@ -122,49 +133,61 @@ function executeCode%(codeBuffer as string, bvmDataPtr as long)
 			endif
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_SwitchToAsciiMode)) then
+			Debug.message "Config Ascii Mode"
 			loMode = HexToken_SwitchToAsciiMode
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_SwitchToGraphMode)) then
+			Debug.message "Config Graph Mode"
 			hiMode = HexToken_SwitchToGraphMode
 			Console.clear
 			xPos = 0
 			yPos = 0
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_SwitchToNumberMode)) then
+			Debug.message "Config Number Mode"
 			loMode = HexToken_SwitchToNumberMode
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_SwitchToTextMode)) then
+			Debug.message "Config Text Mode"
 			hiMode = HexToken_SwitchToTextMode
 			Console.clear
 			xPos = 0
 			yPos = 0
 
 		elseif Strings.areEqual(code, HexToken_BeginLoop) then
+			Debug.message "Begin Loop"
 			value = bvmData(bvmDataPtr) and 255
 			if(simCounter > 0) or(value = 0) then
 				simCounter = simCounter + 1
+				Debug.forInteger "Loop counter: ", simCounter
 			else
 				indexStr = Long.toPackedString(index)
-				String.prepend stackBuffer, indexStr
+				String.prepend loopBuffer, indexStr
 			endif
 
 		elseif Strings.areEqual(code, HexToken_EndLoop) then
-			if simCounter > 1 then
+			Debug.message "End Loop"
+			if simCounter > 0 then
 				simCounter = simCounter - 1
 			else
 				value = bvmData(bvmDataPtr) and 255
 				if value then
-					if String.isEmpty(stackBuffer) then
+					if String.isEmpty(loopBuffer) then
 						result = value
 						exit do
 					else
-						indexStr = String.subStr(stackBuffer, 0, 4)
+						indexStr = String.subStr(loopBuffer, 0, 4)
 						index = Long.fromPackedString(indexStr) - 1
-						stackBuffer = String.subString(stackBuffer, 4)
+						loopBuffer = String.subString(loopBuffer, 4)
 					endif
 				endif
 			endif
-			
+		
+		else
+			'
+			'ignoring illegal token ...
+			'
+			Debug.forInteger "Loop Depth: ", simCounter
 		endif
 
 		if simCounter then

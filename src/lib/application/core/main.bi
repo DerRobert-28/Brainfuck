@@ -8,6 +8,7 @@ Constants:
 
 Globals:
 	dim shared as integer IOresult
+	dim shared as integer DebugMode
 
 Begin:
 	system Main%(command$)

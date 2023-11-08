@@ -18,6 +18,46 @@
 '1111	   F		switch to graphic mode
 
 
+function HexToken_NoOperation$()
+	HexToken_NoOperation = "0"
+end function
+
+
+function HexToken_Return$()
+	HexToken_Return = "1"
+end function
+
+
+function HexToken_NextCell$()
+	HexToken_NextCell = "2"
+end function
+
+
+function HexToken_PrevCell$()
+	HexToken_PrevCell = "3"
+end function
+
+
+function HexToken_PlusOne$()
+	HexToken_PlusOne = "4"
+end function
+
+
+function HexToken_MinusOne$()
+	HexToken_MinusOne = "5"
+end function
+
+
+function HexToken_OutputCell$()
+	HexToken_OutputCell = "6"
+end function
+
+
+function HexToken_InputCell$()
+	HexToken_InputCell = "7"
+end function
+
+
 function HexToken_BeginLoop$()
 	HexToken_BeginLoop = "8"
 end function
@@ -28,43 +68,23 @@ function HexToken_EndLoop$()
 end function
 
 
-function HexToken_InputCell$()
-	HexToken_InputCell = "7"
+function HexToken_SwitchToAsciiMode$()
+	HexToken_SwitchToAsciiMode = "C"
 end function
 
 
-function HexToken_MinusOne$()
-	HexToken_MinusOne = "5"
+function HexToken_SwitchToNumberMode$()
+	HexToken_SwitchToNumberMode = "D"
 end function
 
 
-function HexToken_NextCell$()
-	HexToken_NextCell = "2"
+function HexToken_SwitchToGraphMode$()
+	HexToken_SwitchToGraphMode = "F"
 end function
 
 
-function HexToken_NoOperation$()
-	HexToken_NoOperation = "0"
-end function
-
-
-function HexToken_OutputCell$()
-	HexToken_OutputCell = "6"
-end function
-
-
-function HexToken_PlusOne$()
-	HexToken_PlusOne = "4"
-end function
-
-
-function HexToken_PrevCell$()
-	HexToken_PrevCell = "7"
-end function
-
-
-function HexToken_Return$()
-	HexToken_Return = "1"
+function HexToken_SwitchToTextMode$()
+	HexToken_SwitchToTextMode = "E"
 end function
 
 
@@ -75,24 +95,4 @@ function HexToken_Store$(charCode as string)
 	if String.contains(HexNumberList, charCode) then result = charCode
 	
 	HexToken_Store = result
-end function
-
-
-function HexToken_SwitchToAsciiMode$()
-	HexToken_SwitchToAsciiMode = "C"
-end function
-
-
-function HexToken_SwitchToGraphMode$()
-	HexToken_SwitchToGraphMode = "F"
-end function
-
-
-function HexToken_SwitchToNumberMode$()
-	HexToken_SwitchToNumberMode = "D"
-end function
-
-
-function HexToken_SwitchToTextMode$()
-	HexToken_SwitchToTextMode = "E"
 end function
