@@ -4,7 +4,8 @@ function compileFile%(sourceFile as string, targetFile as string)
 			inFile, includeFile,	_
 			outFile,		_
 			result
-	dim as long	each
+	dim as long	address,	_
+			each
 	dim as string	currentCode, currentLine, currentMacro, currentStream, currentToken,	_
 			fetchResult,								_
 			hiCode, hiMode,								_
@@ -88,21 +89,39 @@ function compileFile%(sourceFile as string, targetFile as string)
 			currentIndex = getMacroIndexOf(fetchResult)
 			String.prepend currentLine, getMacroCode(currentIndex)
 
-		
+		'	pre-implementation (word-jumps with address number)
+		elseif Strings.areEqual(currentToken, "jmp") then
+			currentCode = mapToCode(currentToken)
+
+			Try
+		 		fetchResult = fetchToken(inFile, currentLine)
+		 	Catch result
+		 	EndTry
+
+		 	if result then
+		 		File.closeAll
+		 		Console.writeLine "Missing label."
+		 		exit do
+		 	endif
+			
+			address = Long.fromString(fetchResult)
+			String.append currentCode, dec2hex(address, 4)
+			String.append currentStream, currentCode
+
 		' elseif Strings.areEqual(currentToken, "label") then
-		' 	Try
-		' 		fetchResult = fetchToken(inFile, currentLine)
-		' 	Catch result
-		' 	EndTry
+		'  	Try
+		'  		fetchResult = fetchToken(inFile, currentLine)
+		'  	Catch result
+		'  	EndTry
 
-		' 	if result then
-		' 		File.closeAll
-		' 		Console.writeLine "Missing label name."
-		' 		exit do
-		' 	endif
+		'  	if result then
+		'  		File.closeAll
+		'  		Console.writeLine "Missing label name."
+		'  		exit do
+		'  	endif
 
-		' 	currentIndex = addLabelName(fetchResult)
-		' 	currentMacro = String.Empty
+		'  	currentIndex = addLabelName(fetchResult)
+		'  	currentMacro = String.Empty
 
 		elseif Strings.areEqual(currentToken, "macro") then
 			Try

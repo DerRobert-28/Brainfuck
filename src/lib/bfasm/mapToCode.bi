@@ -12,6 +12,7 @@ function mapToCode$(theToken as string)
 	if Strings.areEqual(bfToken, "in") then result = HexToken_InputCell
 	if Strings.areEqual(bfToken, "inc") then result = HexToken_PlusOne
 	if Strings.areEqual(bfToken, "inp") then result = HexToken_InputCell
+	if Strings.areEqual(bfToken, "jmp") then result = HexToken_JumpToLabel
 	if Strings.areEqual(bfToken, "loop") then result = HexToken_EndLoop
 	if Strings.areEqual(bfToken, "loopne") then result = HexToken_EndLoop
 	if Strings.areEqual(bfToken, "loopnz") then result = HexToken_EndLoop

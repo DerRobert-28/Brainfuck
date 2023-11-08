@@ -10,8 +10,8 @@
 '0111	   7		input current cell (depending on config)
 '1000	   8		begin loop if current cell is not zero
 '1001	   9		repeat loop if current cell is not zero
-'1010	   A		--- (reserved for "short jump/call")
-'1010	   B		--- (reserved for "long jump/call")
+'1010	   A		--- (reserved for "jump to label")
+'1010	   B		--- (reserved for "call subroutine")
 '1100	   C		switch to ascii mode (default; text mode only!)
 '1101	   D		switch to number mode (text mode only!)
 '1110	   E		switch to text mode (default)
@@ -65,6 +65,15 @@ end function
 
 function HexToken_EndLoop$()
 	HexToken_EndLoop = "9"
+end function
+
+
+function HexToken_JumpToLabel$()
+	HexToken_JumpToLabel = "A"
+end function
+
+function HexToken_CallSubRoutine$()
+	HexToken_CallSubRoutine = "B"
 end function
 
 

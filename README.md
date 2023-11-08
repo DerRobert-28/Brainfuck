@@ -94,6 +94,7 @@ The Brainfuck Assembler knows the following commands:
 - "**dec**" / "**sub**": decrement current cell
 - "**endm**" / "**endp**": end of a macro definition
 - "**if**" / "**while**": begin a loop, if current cell is not 0
+- "**jmp** &lt;*address*&gt;": jump to giben adress (as a number); pre-implementation
 - "**loop**" / "**loopne**" / "**loopnz**": repeat loop, if current cell is not 0
 - "**macro** &lt;*name*&gt;" / "**proc** &lt;*name*&gt;": define a macro called *name*
 - "**nop**": perform no operation

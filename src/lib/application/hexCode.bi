@@ -1,4 +1,4 @@
-function dec2hex$(decimalNumber as integer, count as integer)
+function dec2hex$(decimalNumber as unsigned long, count as integer)
 	dim as string result, zeros
 	if count < 1 then
 		dec2hex = hex$(decimalNumber)
@@ -11,6 +11,6 @@ function dec2hex$(decimalNumber as integer, count as integer)
 	endif
 end function
 
-function hex2dec%(hexNumber as string)
+function hex2dec&&(hexNumber as string)
 	hex2Dec = val(String.concat("&H0", String.trim(hexNumber)))
 end function

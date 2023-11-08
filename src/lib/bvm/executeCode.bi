@@ -7,6 +7,7 @@ function executeCode%(codeBuffer as string, bvmDataPtr as long)
 				yPos
 	dim as long		nextIndex
 	dim as string		code,				_
+				codes,				_
 				hiMode,				_
 				indexStr,			_
 				lastCode, loMode, loopBuffer,	_
@@ -26,7 +27,17 @@ function executeCode%(codeBuffer as string, bvmDataPtr as long)
 
 	do
 		code = String.charAt(codeBuffer, index)
-		if Both(simCounter = 0, Strings.areEqual(code, HexToken_InputCell)) then
+
+		'	test implementation
+		if Both(simCounter = 0, Strings.areEqual(code, HexToken_CallSubRoutine)) then
+			Debug.message "Call Subroutine"
+			codes = String.subStr(codeBuffer, index + 1, 4)
+			indexStr = Long.toPackedString(index + 5)
+			String.prepend stackBuffer, indexStr
+			value = hex2dec(codes)
+			index = index + value - 1
+
+		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_InputCell)) then
 			Debug.message "Input Cell"
 			if Strings.areEqual(hiMode, HexToken_SwitchToGraphMode) then
 				value = 0
@@ -78,6 +89,13 @@ function executeCode%(codeBuffer as string, bvmDataPtr as long)
 				value = Integer.fromPackedString(Console.readKey)
 				bvmData(bvmDataPtr) = value
 			endif
+
+		'	test implementation
+		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_JumpToLabel)) then
+			Debug.message "Jump to Label"
+			codes = String.subStr(codeBuffer, index + 1, 4)
+			value = hex2dec(codes)
+			index = index + value - 1
 
 		elseif Both(simCounter = 0, Strings.areEqual(code, HexToken_MinusOne)) then
 			Debug.message "Minus One"
