@@ -1,0 +1,13 @@
+'$include:'File/close.bi'
+'$include:'File/endOf.bi'
+'$include:'File/open.bi'
+'$include:'File/read.bi'
+'$include:'File/readLine.bi'
+'$include:'File/remove.bi'
+'$include:'File/seek.bi'
+'$include:'File/write.bi'
+'$include:'File/writeLine.bi'
+
+'$include:'FileMode/ForAppend.bi'
+'$include:'FileMode/ForReading.bi'
+'$include:'FileMode/ForWriting.bi'
