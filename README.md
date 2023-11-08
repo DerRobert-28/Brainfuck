@@ -66,6 +66,24 @@ The calling syntax is as follows: ```bfasm <sourceFile>```
 **Important:** Do not provide a file extension, because the assembler assumes source files having ".bfa" and byte code file having ".bfc".
 \
 \
+The Brainfuck Assembler knows the following pseudo-commands:
+
+- "**;**": comment line
+- "**.mode &lt;*mode*&gt;**": config one of the display modes:
+  - "**ascii**" / "**byte**": input and output characters
+  - "**digit**" / "**number**": input and output numbers
+  - "**console**" / "**text**": input and output text
+  - "**graphic**(**s**)" / "**video**": input and output pixels
+- "**.ascii**": shortcut for "**.mode ascii**"
+- "**.byte**": shortcut for "**.mode byte**"
+- "**.console**": shortcut for "**.mode console**"
+- "**.digit**": shortcut for "**.mode digit**"
+- "**.graphic**": shortcut for "**.mode graphic**"
+- "**.graphics**": shortcut for "**.mode graphics**"
+- "**.text**": shortcut for "**.mode text**"
+- "**.video**": shortcut for "**.mode video**"
+
+\
 The Brainfuck Assembler knows the following commands:
 
 - "**add**" / "**inc**": increment current cell
