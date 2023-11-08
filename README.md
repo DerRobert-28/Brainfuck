@@ -1,4 +1,4 @@
-# Brainfuck 0.3
+# Brainfuck 0.4
 
 This is a little project that I wrote in QB64.
 It contains three CLI tools:
@@ -107,7 +107,7 @@ The Brainfuck Assembler knows the following commands:
 "BF.exe" runs your compiled Brainfuck byte code.
 The calling syntax is as follows: ```bf <sourceFile>```
 \
-**Important:** Do not provide a file extension, because the interpreter assumes files having ".bc"
+**Important:** Do not provide a file extension, because the interpreter assumes files having ".bfc"
 \
 \
 The code is running inside a BVM,
