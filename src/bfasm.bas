@@ -2,8 +2,8 @@
 
 
 function Main%(cmdLine as string)
-	dim as integer	result
-	dim as string	binaryFile, fileName, messageBuffer, sourceFile
+	dim as integer	outFile, result
+	dim as string	binaryFile, fileName, messageBuffer, sourceFile, tempIncludesFile
 
 	bfasmGreeting With(VERSION)
 
@@ -13,10 +13,16 @@ function Main%(cmdLine as string)
 		exit function
 	endif
 
-	Console.writeLine "Compiling assembly code ..."
-	sourceFile = BF_AssemblerFile(fileName)
+	Console.writeLine "Step 1: Processing includes ..."
+	tempIncludesFile = fileType(fileName, "temp.includes")
+	outFile = File.open(tempIncludesFile, FileMode.ForWriting)
+	result = processIncludes(outFile, fileName)
+	File.close outFile
+
+	Console.writeLine "Step 2: Compiling assembly code ..."
 	binaryFile = BF_BinaryFile(fileName)
-	result = compileFile(sourceFile, binaryFile)
+	result = compileFile(tempIncludesFile, binaryFile)
+	Invoke File.remove(tempIncludesFile)
 
 	if result then
 		Invoke File.remove(binaryFile)

@@ -1,3 +1,4 @@
+'$include:'Char/AtSign.bi'
 '$include:'Char/codeAt.bi'
 '$include:'Char/Enter.bi'
 '$include:'Char/equals.bi'

@@ -69,6 +69,7 @@ The calling syntax is as follows: ```bfasm <sourceFile>```
 The Brainfuck Assembler knows the following pseudo-commands:
 
 - "**;**": comment line
+- "**@**&lt;*file*&gt;": include another assembler file
 - "**.mode &lt;*mode*&gt;**": config one of the display modes:
   - "**ascii**" / "**byte**": input and output characters
   - "**digit**" / "**number**": input and output numbers
@@ -93,7 +94,6 @@ The Brainfuck Assembler knows the following commands:
 - "**dec**" / "**sub**": decrement current cell
 - "**endm**" / "**endp**": end of a macro definition
 - "**if**" / "**while**": begin a loop, if current cell is not 0
-- "**include** &lt;*file*&gt;": include another assembler file provided as following token
 - "**loop**" / "**loopne**" / "**loopnz**": repeat loop, if current cell is not 0
 - "**macro** &lt;*name*&gt;" / "**proc** &lt;*name*&gt;": define a macro called *name*
 - "**nop**": perform no operation

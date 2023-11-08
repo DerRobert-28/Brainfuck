@@ -13,6 +13,7 @@
 '$include:'lib/bfasm/compileFile.bi'
 '$include:'lib/bfasm/fetchToken.bi'
 '$include:'lib/bfasm/mapToCode.bi'
+'$include:'lib/bfasm/processIncludes.bi'
 
 '$include:'lib/classes/Buffer.bi'
 '$include:'lib/classes/Char.bi'
